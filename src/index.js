@@ -1,26 +1,21 @@
-import { ControlOutlined, DatabaseOutlined, SettingOutlined, UserOutlined } from '@ant-design/icons';
-import { Layout, Menu } from 'antd';
-import 'antd/dist/antd.dark.css';
-import React from 'react';
+import React, { Fragment } from 'react';
 import { render } from 'react-dom';
+import { BrowserRouter, Redirect, Route } from 'react-router-dom';
+import App from './App';
+import AppLogin from './AppLogin';
+import './styles/themes/default.less';
 
-const { Header, Sider, Footer } = Layout;
-
-const App = () => (
-  <Layout>
-    <Header>Lilac</Header>
-    <Layout>
-      <Sider>
-        <Menu> 
-          <Menu.Item icon={<DatabaseOutlined />}>Instances</Menu.Item>
-          <Menu.Item icon={<UserOutlined />}>Users</Menu.Item>
-          <Menu.Item icon={<ControlOutlined />}>Administration</Menu.Item>
-          <Menu.Item icon={<SettingOutlined />}>Configuration</Menu.Item>
-        </Menu>
-      </Sider>
-    </Layout>
-    <Footer>footer</Footer>
-  </Layout>
+const out = () => (
+  <BrowserRouter>
+    <Route path="/" render={() => (
+      <Fragment>
+        {!!sessionStorage.getItem("bearerToken") ? <App /> : <Redirect to="/login" />}
+      </Fragment>
+    )} />
+    <Route path="/login">
+      {!!!sessionStorage.getItem("bearerToken") ? <AppLogin /> : <Redirect to="/" />}
+    </Route>
+  </BrowserRouter>
 );
 
-render(<App />, document.getElementById("react-root")); 
+render(out(), document.getElementById("react-root")); 
