@@ -23,7 +23,7 @@ $pairs: ("x": ("left", "right"), "y": ("top", "bottom"));
 }
 
 .ant-layout {
-  min-height: 100vh !important;
+  min-height: calc(100vh - 64px) !important;
 }
 
 /* Display */

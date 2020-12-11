@@ -1,21 +1,24 @@
-import React, { Fragment } from 'react';
+import React from 'react';
 import { render } from 'react-dom';
-import { BrowserRouter, Redirect, Route } from 'react-router-dom';
+import { Provider } from 'react-redux';
+import { BrowserRouter, Redirect, Route, Switch } from 'react-router-dom';
+import './api.js';
 import App from './App';
 import AppLogin from './AppLogin';
+import AuthRequired, { AuthRequiredEx } from './components/AuthRequired.js';
+import store from './store.js';
 import './styles/themes/default.less';
 
-const out = () => (
-  <BrowserRouter>
-    <Route path="/" render={() => (
-      <Fragment>
-        {!!sessionStorage.getItem("bearerToken") ? <App /> : <Redirect to="/login" />}
-      </Fragment>
-    )} />
-    <Route path="/login">
-      {!!!sessionStorage.getItem("bearerToken") ? <AppLogin /> : <Redirect to="/" />}
-    </Route>
-  </BrowserRouter>
+const out = (
+  <Provider store={store}>
+    <BrowserRouter>
+      <Switch>
+        <Redirect exact from="/" to="/home" />
+        <Route path="/login" component={AuthRequiredEx(AppLogin)} />
+        <Route path="/home" component={AuthRequired(App)} />
+      </Switch>
+    </BrowserRouter>
+  </Provider>
 );
 
-render(out(), document.getElementById("react-root")); 
+render(out, document.getElementById("react-root"));

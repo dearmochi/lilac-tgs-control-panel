@@ -3,37 +3,33 @@ import { Menu } from 'antd';
 import Layout, { Content, Header } from 'antd/lib/layout/layout';
 import Sider from 'antd/lib/layout/Sider';
 import React from 'react';
-import { Link, Route, Switch } from 'react-router-dom';
+import { Link, Route, Switch, useRouteMatch } from 'react-router-dom';
+import Instances from './pages/Instances';
 import './styles/util.scss';
 
 export default App => {
-  const isLoggedIn = sessionStorage.getItem("bearerToken") !== null;
-
-  if (!isLoggedIn) {
-    return null;
-  }
-
+  const match = useRouteMatch();
   return (
     <Layout>
       <Header>
-        <Link to="/">Lilac</Link>
+        <Link to={match.url}>Lilac</Link>
       </Header>
       <Layout>
         <Sider>
-          <Navigation />
+          <Navigation pathname={match.url} />
         </Sider>
         <Content className="p-2">
-          <ContentSwitch />
+          <ContentSwitch pathname={match.url} />
         </Content>
       </Layout>
     </Layout>
   );
 };
 
-const Navigation = () => (
+const Navigation = props => (
   <Menu mode="vertical">
     <Menu.Item>
-      <Link to="/instances">
+      <Link to={props.pathname + "/instances"}>
         <DatabaseOutlined />
         Instances
       </Link>
@@ -41,22 +37,13 @@ const Navigation = () => (
   </Menu>
 );
 
-const ContentSwitch = () => {
+const ContentSwitch = props => {
   return (
     <Switch>
-      <Route exact path="/">
-        INDEX
+      <Route exact path={props.pathname}>
+        Home
       </Route>
-      <Route path="/instances">
-        <Switch>
-          <Route exact path="/instances">
-            INSTANCES
-          </Route>
-          <Route path="/instances/:instanceId">
-            INSTANCE ID
-          </Route>
-        </Switch>
-      </Route>
+      <Route path={props.pathname + "/instances"} component={Instances} />
     </Switch>
   );
 };

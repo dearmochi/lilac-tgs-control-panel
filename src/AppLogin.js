@@ -3,12 +3,12 @@ import { Button, Card, Form, Input, message } from 'antd';
 import Layout, { Content } from 'antd/lib/layout/layout';
 import Axios from 'axios';
 import React, { useState } from 'react';
-import { Redirect } from 'react-router-dom';
+import store, { login } from './store';
 import './styles/util.scss';
 
 export default AppLogin => {
   // Login state.
-  const [loginStatus, setLoginStatus] = useState({ loggingIn: false, success: false })
+  const [loginStatus, setLoginStatus] = useState({ loggingIn: false })
 
   // Attempts login and updates the state accordingly.
   const tryLogin = (values) => {
@@ -16,29 +16,28 @@ export default AppLogin => {
       return;
     }
 
+    // Update our state.
     setLoginStatus({ ...loginStatus, loggingIn: true });
+
+    // Make the request.
     Axios.post(process.env.LILAC_TGS_API_URL, {}, {
       headers: {
         "Api": process.env.LILAC_TGS_API_VERSION,
-        "Authorization": "Basic " + btoa(values.username + ":" + values.password)
+        "Authorization": "Basic " + btoa(values.username + ":" + values.password),
       },
     })
       .then(response => {
         sessionStorage.setItem("bearerToken", response.data.bearer);
         sessionStorage.setItem("bearerTokenExpiry", Date.parse(response.data.expiresAt));
-        setLoginStatus(prevState => ({ ...prevState, success: true }));
+
+        // Update state.
+        store.dispatch(login());
       })
       .catch(error => {
-        setLoginStatus(prevState => ({ ...prevState, loggingIn: false }))
+        setLoginStatus(prevState => ({ ...prevState, loggingIn: false }));
         message.error("Failed to log in. (" + error.response.status + ")");
       });
   };
-
-  if (loginStatus.success) {
-    return (
-      <Redirect to="/" />
-    );
-  }
 
   return (
     <Layout>
