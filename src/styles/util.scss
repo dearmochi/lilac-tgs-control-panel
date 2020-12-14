@@ -20,6 +20,11 @@ $pairs: ("x": ("left", "right"), "y": ("top", "bottom"));
   .p#{$short}-auto {
     @each $dir in $dirs { padding-#{$dir}: auto !important; }
   }
+
+  @for $i from 0 through 5 {
+    .p#{$short}-#{$i} { @each $dir in $dirs { padding-#{$dir}: $i * $base-dimension !important; } }
+    .m#{$short}-#{$i} { @each $dir in $dirs { margin-#{$dir}: $i * $base-dimension !important; } }
+  }
 }
 
 .ant-layout {

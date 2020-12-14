@@ -6,7 +6,7 @@
   "author": "dearmochi",
   "license": "GNU GPL V3.0",
   "scripts": {
-    "build": "npx -p webpack-cli -p webpack webpack --config webpack.prod.js",
+    "build": "npm run lint && npx -p webpack-cli -p webpack webpack --config webpack.prod.js",
     "server": "npx -p webpack-cli -p webpack webpack serve --config webpack.dev.js",
     "lint": "npx eslint --ext js src"
   },
