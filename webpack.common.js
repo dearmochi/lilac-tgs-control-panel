@@ -2,7 +2,6 @@ const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 const Dotenv = require('dotenv-webpack');
 const CopyPlugin = require("copy-webpack-plugin");
 const path = require("path");
-const webpack = require('webpack');
 
 module.exports = {
   entry: path.resolve(__dirname, "src", "index.js"),
@@ -16,11 +15,11 @@ module.exports = {
       {
         test: /\.js$/,
         include: path.resolve(__dirname, 'src'),
-        use: ["babel-loader"]
+        use: ["babel-loader"],
       },
       {
         test: /\.(sc|c)ss$/,
-        use: ["style-loader", "css-loader", "sass-loader"]
+        use: ["style-loader", "css-loader", "sass-loader"],
       },
       {
         test: /\.less$/,
@@ -35,11 +34,11 @@ module.exports = {
               },
             },
           }
-        ]
+        ],
       },
       {
         test: /\.(jpg|jpeg|png|woff|woff2|eot|ttf|svg)$/i,
-        use: ["url-loader"]
+        use: ["url-loader"],
       },
     ]
   },
@@ -48,7 +47,7 @@ module.exports = {
     new CopyPlugin({
       patterns: [
         { from: "public", to: "." }
-      ]
+      ],
     }),
     new Dotenv()
   ],

@@ -1,8 +1,8 @@
 import { message, Table, Tag } from "antd";
-import Axios from 'axios';
 import React, { useEffect, useState } from "react";
 import { Link, useRouteMatch } from 'react-router-dom';
 import Monospace from '../../../components/Monospace';
+import Tgs from '../../../utils/tgs';
 
 const columns = [
   {
@@ -45,7 +45,7 @@ const columns = [
 ];
 
 const InstanceList = () => {
-  const match = useRouteMatch();
+  const { path } = useRouteMatch();
 
   // State.
   const [data, setData] = useState({ instances: null });
@@ -53,20 +53,17 @@ const InstanceList = () => {
   // Get instances from API.
   useEffect(() => {
     // Make the request.
-    Axios.get(process.env.LILAC_TGS_API_URL + "Instance/List", {
-      headers: {
-        "Api": process.env.LILAC_TGS_API_VERSION,
-        "Authorization": "Bearer " + sessionStorage.getItem("bearerToken"),
-      },
-    })
+    Tgs.get("Instance/List")
       .then(response => {
-        const parsedData = response.data.map((entry, i) => ({
-          ...entry, 
-          key: i,
-          url: match.url + "/" + entry.id,
-        }));
         // Update our state.
-        setData(prevState => ({ ...prevState, instances: parsedData }));
+        setData(prevState => ({ 
+          ...prevState, 
+          instances: response.data.map((entry, i) => ({
+            ...entry, 
+            key: i,
+            url: path + "/" + entry.id,
+          })),
+        }));
       })
       .catch(error => message.error("Failed to retrieve instance list. (" + error.response.status + ")"));
   }, []);

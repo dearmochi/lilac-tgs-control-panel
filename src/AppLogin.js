@@ -1,10 +1,9 @@
 import { LockOutlined, UserOutlined } from '@ant-design/icons';
-import { Button, Card, Form, Input, message } from 'antd';
+import { Button, Card, Form, Input } from 'antd';
 import Layout, { Content } from 'antd/lib/layout/layout';
-import Axios from 'axios';
 import React, { useState } from 'react';
-import store, { login } from './store';
 import './styles/util.scss';
+import Auth from './utils/authentication';
 
 export default AppLogin => {
   // Login state.
@@ -20,23 +19,8 @@ export default AppLogin => {
     setLoginStatus({ ...loginStatus, loggingIn: true });
 
     // Make the request.
-    Axios.post(process.env.LILAC_TGS_API_URL, {}, {
-      headers: {
-        "Api": process.env.LILAC_TGS_API_VERSION,
-        "Authorization": "Basic " + btoa(values.username + ":" + values.password),
-      },
-    })
-      .then(response => {
-        sessionStorage.setItem("bearerToken", response.data.bearer);
-        sessionStorage.setItem("bearerTokenExpiry", Date.parse(response.data.expiresAt));
-
-        // Update state.
-        store.dispatch(login());
-      })
-      .catch(error => {
-        setLoginStatus(prevState => ({ ...prevState, loggingIn: false }));
-        message.error("Failed to log in. (" + error.response.status + ")");
-      });
+    Auth.login(values.username, values.password)
+      .catch(error => setLoginStatus(prevState => ({ ...prevState, loggingIn: false })));
   };
 
   return (
