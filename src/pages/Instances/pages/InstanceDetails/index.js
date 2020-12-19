@@ -1,15 +1,14 @@
-import { ApiOutlined, BranchesOutlined, CloudDownloadOutlined, EditOutlined, ExclamationCircleOutlined, EyeOutlined, FileOutlined, FlagOutlined, MessageOutlined, SettingOutlined, TeamOutlined, UserAddOutlined } from '@ant-design/icons';
-import { Button, Card, Col, message, PageHeader, Row, Space, Spin, Statistic, Tabs, Tag } from 'antd';
-import Checkbox from 'antd/lib/checkbox/Checkbox';
+import { ApiOutlined, BranchesOutlined, CloudDownloadOutlined, DeploymentUnitOutlined, EditOutlined, ExclamationCircleOutlined, EyeOutlined, MessageOutlined, SettingOutlined, TeamOutlined, UserAddOutlined } from '@ant-design/icons';
+import { Button, Card, Col, message, PageHeader, Row, Space, Statistic, Tabs, Tag } from 'antd';
 import confirm from 'antd/lib/modal/confirm';
-import Text from 'antd/lib/typography/Text';
-import React, { Fragment, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import BreadcrumbHint from '../../../components/BreadcrumbHint';
-import Monospace from '../../../components/Monospace';
-import TgsInstanceRights from '../../../models/TgsInstanceRights';
-import { cleanRuleName, iconText } from '../../../utils/other';
-import Tgs from '../../../utils/tgs';
+import BreadcrumbHint from '../../../../components/BreadcrumbHint';
+import Monospace from '../../../../components/Monospace';
+import { iconText } from '../../../../utils/other';
+import Tgs from '../../../../utils/tgs';
+import DreamDaemon from './pages/DreamDaemon';
+import Users from './pages/Users';
 
 const { TabPane } = Tabs;
 
@@ -35,7 +34,7 @@ const InstanceDetails = () => {
     <>
       <BreadcrumbHint path={"/instances/" + id} name="Instance Details" />
       <InstanceHeader data={data} />
-      <InstanceBody data={data} />
+      <InstanceBody instanceId={id} data={data} />
     </>
   );
 };
@@ -86,7 +85,7 @@ const InstanceHeader = ({ data }) => (
       </Col>
       <Col span="8" offset="1">
         <Statistic
-          title="Status"
+          title="Instance Status"
           value={data.instance?.online}
           loading={!data.instance}
           formatter={online => (
@@ -100,37 +99,20 @@ const InstanceHeader = ({ data }) => (
   </PageHeader>
 );
 
-const InstanceBody = ({ data }) => (
+const InstanceBody = ({ instanceId, data }) => (
   <Card type="inner" bordered={false}>
     <Tabs className="mb-1">
-      <TabPane tab={iconText(FlagOutlined, "Your Permissions")} key="0">
-        <Tabs tabPosition="left">
-          {TgsInstanceRights.AllCategories.map(({name, key, rights}) => (
-            <TabPane tab={name} key={key}>
-              <Spin spinning={!data.instanceUser}>
-                {Object.entries(rights).map(([i, rightName]) => (
-                  <Fragment key={i}>
-                    <Checkbox checked={data.instanceUser?.[key] & i} disabled>
-                      {cleanRuleName(rightName)}
-                    </Checkbox>
-                    <br />
-                  </Fragment>
-                ))}
-                </Spin>
-            </TabPane>
-          ))}
-        </Tabs>
+      <TabPane tab={iconText(TeamOutlined, "Users")} key="1">
+        <Users instanceId={instanceId} currentUser={data.instanceUser} />
       </TabPane>
-      <TabPane tab={iconText(TeamOutlined, "Users")} key="1" />
       <TabPane tab={iconText(BranchesOutlined, "Repository")} key="2" />
-      <TabPane tab={iconText(FileOutlined, "BYOND")} key="3" />
+      <TabPane tab={iconText(DeploymentUnitOutlined, "BYOND")} key="3" />
       <TabPane tab={iconText(CloudDownloadOutlined, "Deployment")} key="4" />
-      <TabPane tab={iconText(EyeOutlined, "Dream Daemon")} key="5" />
+      <TabPane tab={iconText(EyeOutlined, "Dream Daemon")} key="5">
+        <DreamDaemon instanceId={instanceId} />
+      </TabPane>
       <TabPane tab={iconText(MessageOutlined, "Chatbots")} key="6" />
       <TabPane tab={iconText(SettingOutlined, "Configuration")} key="7" />
     </Tabs>
-    <Text type="secondary">
-      To receive more permissions, press the &quot;Grant all permissions on this instance to self&quot; button at the top.
-    </Text>
   </Card>
 );

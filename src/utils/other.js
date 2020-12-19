@@ -1,7 +1,9 @@
 import React from 'react';
 
+export const hasRight = (user, group, right) => user?.[group] & right;
+
+const re = /([A-Z][a-z]+)/g;
 export const cleanRuleName = s => {
-  const re = /([A-Z][a-z]+)/g;
   return s.match(re).join(" ");
 };
 

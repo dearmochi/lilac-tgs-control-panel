@@ -93,6 +93,9 @@ const AllCategories = [
 
 const TgsInstanceRights = {
   ...AllCategories.map(category => ({ [category.key]: category })),
+  ...AllCategories.map(category => // Reverse list of perm name -> bitflag to make permission check easier.
+    Object.entries(category).map(kv => ({ [kv[1]]: kv[0] }))
+  ),
   AllCategories: AllCategories,
 };
 export default TgsInstanceRights;
