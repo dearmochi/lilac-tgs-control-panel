@@ -7,7 +7,7 @@ import Tgs from './tgs';
  * @param {*} password The plaintext password.
  */
 const login = (username, password) => {
-  return Tgs.post("", { "Authorization": "Basic " + btoa(username + ":" + password) })
+  return Tgs.post("", {}, { "Authorization": "Basic " + btoa(username + ":" + password) })
     .then(response => {
       sessionStorage.setItem("bearerToken", response.data.bearer);
       sessionStorage.setItem("bearerTokenExpiry", Date.parse(response.data.expiresAt));

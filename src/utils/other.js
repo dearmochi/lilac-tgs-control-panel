@@ -1,3 +1,4 @@
+import { message } from 'antd';
 import React from 'react';
 
 export const hasRight = (user, group, right) => user?.[group] & right;
@@ -8,3 +9,7 @@ export const cleanRuleName = s => {
 };
 
 export const iconText = (Icon, text) => [<Icon key="0" />, text];
+
+export const messageTgsError = (error, action = "perform action") => {
+  message.error("Failed to " + action + ". (" + error?.response?.status + ": " + error?.response?.data?.message + ")", 5);
+}

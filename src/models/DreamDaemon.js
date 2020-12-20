@@ -4,7 +4,14 @@ const SecurityLevels = {
   Ultrasafe: 2,
 };
 
-const DreamDaemon = { SecurityLevels: SecurityLevels };
+const Status = {
+  Offline: 0,
+  Restoring: 1,
+  Online: 2,
+  DelayedRestart: 3,
+};
+
+const DreamDaemon = { SecurityLevels: SecurityLevels, Status: Status };
 export default DreamDaemon;
 
 export const getSecurityLevelName = lvl => {
@@ -16,16 +23,19 @@ export const getSecurityLevelName = lvl => {
     case 2:
       return "Ultrasafe";
     default:
-      return "?";
+      return "N/A";
   }
 };
 
 export const getGracefulAction = dd => {
-  if (dd.softRestart) {
+  if (!dd) {
+    return "None";
+  } else if (dd.softRestart) {
     return "Restart";
   } else if (dd.softShutdown) {
     return "Shutdown";
   }
+  return "None";
 };
 
 export const getStatus = status => {

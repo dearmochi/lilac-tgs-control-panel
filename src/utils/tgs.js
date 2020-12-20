@@ -19,14 +19,26 @@ const get = (endpoint = "", headersOverride) => {
 /**
  * Sends a POST request to the TGS API.
  * @param {string} endpoint - The API endpoint.
+ * @param {Object} payload - The data to POST.
  * @param {Object} headersOverride - Overrides the default headers if provided.
  */
-const post = (endpoint = "", headersOverride) => {
-  return Axios.post(process.env.LILAC_TGS_API_URL + endpoint, {}, {
+const post = (endpoint = "", payload = {}, headersOverride) => {
+  return Axios.post(process.env.LILAC_TGS_API_URL + endpoint, payload, {
+    headers: { ...defaultHeaders(), ...headersOverride },
+  });
+};
+
+/**
+ * Sends a DELETE request to the TGS API.
+ * @param {string} endpoint - The API endpoint.
+ * @param {Object} headersOverride - Overrides the default headers if provided.
+ */
+const del = (endpoint = "", headersOverride) => {
+  return Axios.delete(process.env.LILAC_TGS_API_URL + endpoint, {
     headers: { ...defaultHeaders(), ...headersOverride },
   });
 };
 
 // Export
-const Tgs = { get: get, post: post };
+const Tgs = { get: get, post: post, delete: del };
 export default Tgs;
