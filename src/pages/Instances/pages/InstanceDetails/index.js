@@ -5,8 +5,10 @@ import React, { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import BreadcrumbHint from '../../../../components/BreadcrumbHint';
 import Monospace from '../../../../components/Monospace';
+import store, { add as instanceJobsAdd, init as instanceJobsInit } from '../../../../store';
 import { iconText } from '../../../../utils/other';
 import Tgs from '../../../../utils/tgs';
+import JobsDrawer from './JobsDrawer';
 import DreamDaemon from './pages/DreamDaemon';
 import Users from './pages/Users';
 
@@ -16,25 +18,49 @@ const InstanceDetails = () => {
   const { id } = useParams();
 
   // State.
-  const [data, setData] = useState({ instance: null, instanceUser: null, grantingPerms: false });
+  const [data, setData] = useState({ instance: null, instanceUser: null, grantingPerms: false, instanceUpdate: 0 });
+
+  useEffect(() => {
+    store.dispatch(instanceJobsInit());
+  }, []);
 
   // Get instances from API.
   useEffect(() => {
     // Make the request.
     Tgs.get("Instance/" + id)
-      .then(response => {
-        setData(prevState => ({ ...prevState, instance: response.data }));
+      .then(({ data }) => {
+        const jobs = [data.activeCompileJob?.job, data.stagedCompileJob?.job].filter(job => !!job);
+        if (jobs.length > 0) {
+          store.dispatch(instanceJobsAdd(jobs));
+        }
+
+        setData(prevState => ({ ...prevState, instance: data }));
         return Tgs.get("InstanceUser", { "Instance": id });
       })
-      .then(response => setData(prevState => ({ ...prevState, instanceUser: response.data })))
+      .then(({ data }) => setData(prevState => ({ ...prevState, instanceUser: data })))
       .catch(error => message.error("Failed to retrieve instance ID " + id + ". (" + error.response.status + ")"));
-  }, []);
+  }, [data.instanceUpdate]);
 
   return (
     <>
       <BreadcrumbHint path={"/instances/" + id} name="Instance Details" />
-      <InstanceHeader data={data} />
-      <InstanceBody instanceId={id} data={data} />
+      <JobsDrawer
+        instanceId={id} 
+        onJobComplete={
+          _ => {
+            setData(prevState => ({ ...prevState, instanceUpdate: prevState.instanceUpdate + 1 }));
+          }
+        }
+      />
+      <InstanceHeader
+        data={data}
+        instanceUpdate={data.instanceUpdate}
+      />
+      <InstanceBody
+        instanceId={id}
+        instanceUpdate={data.instanceUpdate}
+        data={data}
+      />
     </>
   );
 };
@@ -99,17 +125,20 @@ const InstanceHeader = ({ data }) => (
   </PageHeader>
 );
 
-const InstanceBody = ({ instanceId, data }) => (
+const InstanceBody = ({ data, ...rest }) => (
   <Card type="inner" bordered={false}>
     <Tabs className="mb-1">
       <TabPane tab={iconText(TeamOutlined, "Users")} key="1">
-        <Users instanceId={instanceId} currentUser={data.instanceUser} />
+        <Users
+          currentUser={data.instanceUser}
+          {...rest}
+        />
       </TabPane>
       <TabPane tab={iconText(BranchesOutlined, "Repository")} key="2" />
       <TabPane tab={iconText(DeploymentUnitOutlined, "BYOND")} key="3" />
       <TabPane tab={iconText(CloudDownloadOutlined, "Deployment")} key="4" />
       <TabPane tab={iconText(EyeOutlined, "Dream Daemon")} key="5">
-        <DreamDaemon instanceId={instanceId} />
+        <DreamDaemon {...rest} />
       </TabPane>
       <TabPane tab={iconText(MessageOutlined, "Chatbots")} key="6" />
       <TabPane tab={iconText(SettingOutlined, "Configuration")} key="7" />

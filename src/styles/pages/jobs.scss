@@ -1,0 +1,16 @@
+.lilac-jobs
+{
+  .ant-drawer-content
+  {
+    overflow: visible;
+  }
+
+  &-handle
+  {
+    position: absolute !important;
+    right: 300px;
+    top: 240px;
+    width: 64px !important;
+    height: 64px !important;
+  }
+}

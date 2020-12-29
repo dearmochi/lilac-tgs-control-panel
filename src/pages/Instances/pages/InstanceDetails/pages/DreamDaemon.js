@@ -2,10 +2,11 @@ import { FileAddOutlined, PlayCircleOutlined, ReloadOutlined, StopOutlined } fro
 import { Button, Col, Divider, Form, Input, InputNumber, message, Radio, Row, Space, Spin, Statistic, Switch, Tag } from 'antd';
 import React, { useEffect, useState } from 'react';
 import { default as Defines, getGracefulAction, getSecurityLevelName, getStatus } from '../../../../../models/DreamDaemon';
+import store, { add as instanceJobsAdd } from '../../../../../store';
 import { messageTgsError } from '../../../../../utils/other';
 import Tgs from '../../../../../utils/tgs';
 
-const DreamDaemon = ({ instanceId }) => {
+const DreamDaemon = ({ instanceId, instanceUpdate }) => {
   const [data, setData] = useState({ daemon: null, updates: 0 });
 
   // Updates the Dream Daemon model with the given form.
@@ -39,8 +40,8 @@ const DreamDaemon = ({ instanceId }) => {
   useEffect(() => {
     Tgs.get("DreamDaemon", { "Instance": instanceId })
       .then(({ data }) => setData(prevState => ({ ...prevState, daemon: data })))
-      .catch(error => messageTgsError(error, "fetch daemon settings for instance " + instanceId));
-  }, [data.updates]);
+      .catch(error => messageTgsError(error, "fetch daemon settings for instance " + instanceId))
+  }, [data.updates, instanceUpdate]);
 
   return (
     <>
@@ -65,7 +66,6 @@ const DreamDaemon = ({ instanceId }) => {
     </>
   );
 };
-
 export default DreamDaemon;
 
 const DaemonStatus = ({ daemon }) => (
@@ -244,26 +244,63 @@ const DaemonSettings = ({ daemon, onSubmit }) => {
 
 const DaemonActions = ({ daemon, instanceId, onAction }) => {
   const [inProgress, setInProgress] = useState(false);
+
+  /**
+   * Starts the server.
+   */
+  const startServer = () => {
+    Tgs.put("DreamDaemon", {}, { "Instance": instanceId })
+      .then(({ data }) => {
+        store.dispatch(instanceJobsAdd([data]));
+        message.success("Instance " + instanceId + " started.");
+        onAction();
+      })
+      .catch(error => messageTgsError(error, "start instance " + instanceId + "."));
+  };
+
+  /**
+   * Restarts the server.
+   */
+  const restartServer = () => {
+    Tgs.patch("DreamDaemon", {}, { "Instance": instanceId })
+      .then(({ data }) => {
+        store.dispatch(instanceJobsAdd([data]));
+        message.success("Instance " + instanceId + " restarted.");
+        onAction();
+      })
+      .catch(error => messageTgsError(error, "restart instance " + instanceId + "."));
+  };
+
+  /**
+   * Stops the server.
+   */
+  const stopServer = () => {
+    Tgs.delete("DreamDaemon", { "Instance": instanceId })
+      .then(_ => {
+        message.success("Instance " + instanceId + " shut down.");
+        onAction();
+      })
+      .catch(error => messageTgsError(error, "shut down instance " + instanceId + "."));
+  };
+
   return (
     <>
       <Space>
-        <Button type="primary" disabled={daemon?.status != Defines.Status.Offline}>
+        <Button
+          type="primary"
+          disabled={daemon?.status != Defines.Status.Offline}
+          onClick={startServer}>
           <PlayCircleOutlined /> Start server
         </Button>
-        <Button disabled={daemon?.status == Defines.Status.Offline}>
+        <Button
+          disabled={daemon?.status == Defines.Status.Offline}
+          onClick={restartServer}>
           <ReloadOutlined /> Restart server
         </Button>
         <Button
           danger
           disabled={daemon?.status == Defines.Status.Offline}
-          onClick={() => {
-            Tgs.delete("DreamDaemon", { "Instance": instanceId })
-              .then(_ => {
-                message.success("Instance " + instanceId + " shut down.");
-                onAction();
-              })
-              .catch(error => messageTgsError(error, "shut down instance " + instanceId + "."));
-          }}>
+          onClick={stopServer}>
           <StopOutlined /> Stop server
         </Button>
         <Button disabled={daemon?.status == Defines.Status.Offline}>

@@ -16,7 +16,7 @@ const authSlice = createSlice({
       state.isAuthed = false;
       state.user = null;
     },
-  }
+  },
 });
 
 export const { login, logout } = authSlice.actions;
@@ -41,16 +41,35 @@ const breadcrumbSlice = createSlice({
       state.nodes = [...state.nodes, node];
       state.registeredNodes = { ...state.registeredNodes, [node.path]: true };
     },
-  }
+  },
 });
 
 export const { root, hint } = breadcrumbSlice.actions;
+
+// Instance jobs slice
+const instanceJobsSlice = createSlice({
+  name: "instanceJobs",
+  initialState: {
+    jobs: [],
+  },
+  reducers: {
+    init: (state, { payload }) => {
+      state.jobs = payload || [];
+    },
+    add: (state, { payload }) => {
+      state.jobs = state.jobs.concat(payload);
+    },
+  },
+});
+
+export const { init, add } = instanceJobsSlice.actions;
 
 // Store
 export default configureStore({
   reducer: {
     auth: authSlice.reducer,
     breadcrumb: breadcrumbSlice.reducer,
+    instanceJobs: instanceJobsSlice.reducer,
   },
   devTools: true,
 });

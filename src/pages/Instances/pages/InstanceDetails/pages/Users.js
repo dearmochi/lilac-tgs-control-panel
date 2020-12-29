@@ -18,14 +18,13 @@ const Users = ({ instanceId }) => {
         Promise.all(response.data.map(instanceUser =>
           Tgs.get("User/" + instanceUser.userId)
             .then(userResponse => ({ ...instanceUser, ...userResponse.data }))
-        ))
-      )
+        )))
       .then(result => result.reduce((map, instanceUser) => (map[instanceUser.id] = instanceUser, map), {}))
       .then(result => setData(prevState => ({ ...prevState, instanceUsers: result })))
       .catch(error => {
         message.error("Failed to retrieve instance ID " + instanceId + " users. (" + error?.response?.status + ")");
       });
-  });
+  }, []);
 
   return (
     <Spin spinning={!data.instanceUsers}>
