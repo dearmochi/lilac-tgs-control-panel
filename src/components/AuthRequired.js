@@ -4,7 +4,7 @@ import { Redirect } from 'react-router-dom';
 
 /**
  * Returns a component that may only be accessed by authenticated users.
- * @param {*} ComposedComponent The component to wrap.
+ * @param {*} ComposedComponent - The component to wrap.
  */
 const AuthRequired = ComposedComponent => {
   return connect(state => ({ auth: state.auth }))((props) => (
@@ -14,7 +14,7 @@ const AuthRequired = ComposedComponent => {
 
 /**
  * Returns a component that may only be accessed by NON authenticated users.
- * @param {*} ComposedComponent The component to wrap.
+ * @param {*} ComposedComponent - The component to wrap.
  */
 export const AuthForbidden = ComposedComponent => {
   return connect(state => ({ auth: state.auth }))((props) => (

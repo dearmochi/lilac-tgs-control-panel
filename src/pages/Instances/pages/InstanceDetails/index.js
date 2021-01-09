@@ -5,7 +5,7 @@ import React, { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import BreadcrumbHint from '../../../../components/BreadcrumbHint';
 import Monospace from '../../../../components/Monospace';
-import store, { add as instanceJobsAdd, init as instanceJobsInit } from '../../../../store';
+import store, { add as instanceJobsAdd, init as instanceJobsInit, instance } from '../../../../store';
 import { iconText } from '../../../../utils/other';
 import Tgs from '../../../../utils/tgs';
 import JobsDrawer from './JobsDrawer';
@@ -18,7 +18,7 @@ const InstanceDetails = () => {
   const { id } = useParams();
 
   // State.
-  const [data, setData] = useState({ instance: null, instanceUser: null, grantingPerms: false, instanceUpdate: 0 });
+  const [data, setData] = useState({ instance: null, instanceUpdate: 0 });
 
   useEffect(() => {
     store.dispatch(instanceJobsInit());
@@ -37,7 +37,7 @@ const InstanceDetails = () => {
         setData(prevState => ({ ...prevState, instance: data }));
         return Tgs.get("InstanceUser", { "Instance": id });
       })
-      .then(({ data }) => setData(prevState => ({ ...prevState, instanceUser: data })))
+      .then(({ data }) => store.dispatch(instance(data)))
       .catch(error => message.error("Failed to retrieve instance ID " + id + ". (" + error.response.status + ")"));
   }, [data.instanceUpdate]);
 
@@ -129,10 +129,7 @@ const InstanceBody = ({ data, ...rest }) => (
   <Card type="inner" bordered={false}>
     <Tabs className="mb-1">
       <TabPane tab={iconText(TeamOutlined, "Users")} key="1">
-        <Users
-          currentUser={data.instanceUser}
-          {...rest}
-        />
+        <Users {...rest} />
       </TabPane>
       <TabPane tab={iconText(BranchesOutlined, "Repository")} key="2" />
       <TabPane tab={iconText(DeploymentUnitOutlined, "BYOND")} key="3" />

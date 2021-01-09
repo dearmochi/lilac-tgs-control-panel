@@ -3,7 +3,7 @@ import { Button, Divider, Dropdown, Menu, message, Spin, Tabs } from 'antd';
 import Checkbox from 'antd/lib/checkbox/Checkbox';
 import Text from 'antd/lib/typography/Text';
 import React, { Fragment, useEffect, useState } from 'react';
-import TgsInstanceRights from '../../../../../models/TgsInstanceRights';
+import Rights from '../../../../../models/Rights';
 import { cleanRuleName, hasRight } from '../../../../../utils/other';
 import Tgs from '../../../../../utils/tgs';
 
@@ -68,7 +68,7 @@ const UserRights = ({ instanceUser }) => (
   <>
     <Divider orientation="left">{instanceUser.name + "'s Permissions"}</Divider>
     <Tabs tabPosition="left">
-      {TgsInstanceRights.AllCategories.map(({name, key, rights}) => (
+      {Rights.InstanceUserCategories.map(({name, key, rights}) => (
         <TabPane tab={name} key={key}>
           {Object.entries(rights).map(([right, rightName]) => (
             <Fragment key={right}>

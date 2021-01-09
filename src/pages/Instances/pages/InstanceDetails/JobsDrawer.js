@@ -1,10 +1,11 @@
-import { ClockCircleOutlined, HourglassOutlined, UserOutlined } from '@ant-design/icons';
+import { ClockCircleOutlined, HourglassOutlined, UserOutlined, WarningOutlined } from '@ant-design/icons';
 import { Badge, Button, Card, Drawer, Empty, Progress, Spin, Typography } from 'antd';
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
+import Rights from '../../../../models/Rights';
 import store, { add as addJobs } from '../../../../store';
 import '../../../../styles/pages/jobs.scss';
-import { messageTgsError } from '../../../../utils/other';
+import { hasRight, messageTgsError } from '../../../../utils/other';
 import Tgs from '../../../../utils/tgs';
 
 const JobsDrawer = ({ instanceId, onJobComplete }) => {
@@ -66,7 +67,10 @@ const JobsContent = ({ jobs, ...rest }) => {
 };
 
 const JobCard = ({ instanceId, job, onComplete, onStop }) => {
-  const [jobData, setJobData] = useState(job);
+  const [{ jobData, cancelling }, setData] = useState({ jobData: job, cancelling: false });
+  const setJobData = v => setData(prevState => ({ ...prevState, jobData: v }));
+  const setCancelling = v => setData(prevState => ({ ...prevState, cancelling: v }));
+  const instanceUser = useSelector(state => state.auth.instanceUser);
   const isCompleted = jobData.stoppedAt && !jobData.errorCode;
 
   useEffect(() => {
@@ -86,6 +90,16 @@ const JobCard = ({ instanceId, job, onComplete, onStop }) => {
     return () => clearInterval(intervalHandle);
   }, []);
 
+  /**
+   * Cancels the job. Duh
+   */
+  const cancelJob = () => {
+    setCancelling(true);
+    Tgs.delete("Job/" + jobData.id, { "Instance": instanceId })
+      .then(({ data }) => setJobData(data))
+      .catch(error => messageTgsError(error, "cancel job ID " + jobData.id))
+  };
+
   return (
     <Card
       type="inner"
@@ -93,25 +107,46 @@ const JobCard = ({ instanceId, job, onComplete, onStop }) => {
       title={"Job #" + jobData.id}
       className="mb-1"
       extra={(
-        !jobData.stoppedAt && <Button size="small" danger>Cancel</Button>
+        jobData.stoppedAt
+        ? (
+          jobData.cancelled && <Typography.Text type="warning">Cancelled</Typography.Text>
+          || jobData.errorCode && <Typography.Text type="danger" strong>Failed</Typography.Text>
+        )
+        : (
+          <Button
+            loading={cancelling}
+            disabled={!hasRight(instanceUser, Rights.AllCategories[jobData.cancelRightsType].key, jobData.cancelRight)}
+            size="small"
+            danger
+            onClick={cancelJob}>
+            Cancel
+          </Button>
+        )
       )}>
       {jobData.description}<br />
       <Typography.Text type="secondary">
         <UserOutlined /> {jobData.startedBy?.name} ({jobData.startedBy?.id})<br />
         <ClockCircleOutlined /> {jobData.startedAt && new Date(jobData.startedAt).toLocaleString()}<br />
+        {jobData.errorCode && (
+          <Typography.Text type="danger">
+            <WarningOutlined /> {jobData.exceptionDetails} ({jobData.errorCode})
+          </Typography.Text>
+        )}
       </Typography.Text>
-      <Progress
-        percent={isCompleted ? 100 : (jobData.progress || 0)}
-        status={
-          jobData.stoppedAt && (
-            jobData.errorCode
-            ? "exception" 
-            : "success"
-          )
-          || "active"
-        }
-        showInfo={isCompleted}
-      />
+      {!jobData.cancelled && (
+        <Progress
+          percent={jobData.stoppedAt ? 100 : (jobData.progress || 0)}
+          status={
+            jobData.stoppedAt && (
+              jobData.errorCode
+              ? "exception" 
+              : "success"
+            )
+            || "active"
+          }
+          showInfo={isCompleted}
+        />
+      )}
     </Card>
   );
 };

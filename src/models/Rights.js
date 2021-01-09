@@ -1,3 +1,29 @@
+const Administration = {
+  0: "None",
+  1: "WriteUsers",
+  2: "RestartHost",
+  4: "ChangeVersion",
+  8: "EditOwnPassword",
+  16: "ReadUsers",
+  32: "DownloadLogs",
+  64: "EditOwnOAuthConnections",
+};
+
+const InstanceManager = {
+  0: "None",
+  1: "Read",
+  2: "Create",
+  4: "Rename",
+  8: "Relocate",
+  16: "SetOnline",
+  32: "Delete",
+  64: "List",
+  128: "SetConfiguration",
+  256: "SetAutoUpdate",
+  512: "SetChatBotLimit",
+  1024: "GrantPermissions",
+};
+
 const InstanceUser = {
   1: "ReadUsers",
   2: "WriteUsers",
@@ -82,20 +108,23 @@ const Configuration = {
 const category = (name, key, rights) => ({ name: name, key: key, rights: rights });
 
 const AllCategories = [
-  category("Instance Users", "instanceUserRights", InstanceUser),
+  category("Administration", null, Administration),
+  category("Instances", null, InstanceManager),
   category("Repository", "repositoryRights", Repository),
   category("Byond", "byondRights", Byond),
   category("Deployment", "dreamMakerRights", DreamMaker),
   category("Dream Daemon", "dreamDaemonRights", DreamDaemon),
   category("Chatbots", "chatBotRights", Chatbot),
   category("Configuration", "configurationRights", Configuration),
+  category("Instance Users", "instanceUserRights", InstanceUser),
 ];
 
-const TgsInstanceRights = {
+const Rights = {
   ...AllCategories.map(category => ({ [category.key]: category })),
   ...AllCategories.map(category => // Reverse list of perm name -> bitflag to make permission check easier.
     Object.entries(category).map(kv => ({ [kv[1]]: kv[0] }))
   ),
   AllCategories: AllCategories,
+  InstanceUserCategories: AllCategories.filter(category => category.key),
 };
-export default TgsInstanceRights;
+export default Rights; 

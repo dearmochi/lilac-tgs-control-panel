@@ -6,6 +6,7 @@ const authSlice = createSlice({
   initialState: {
     isAuthed: !!sessionStorage.getItem("bearerToken"),
     user: null,
+    instanceUser: null,
   },
   reducers: {
     login: (state, action) => {
@@ -14,12 +15,15 @@ const authSlice = createSlice({
     },
     logout: state => {
       state.isAuthed = false;
-      state.user = null;
+      state.user = state.instanceUser = null;
+    },
+    instance: (state, { payload }) => {
+      state.instanceUser = payload;
     },
   },
 });
 
-export const { login, logout } = authSlice.actions;
+export const { login, logout, instance } = authSlice.actions;
 
 // Breadcrumb slice
 const breadcrumbSlice = createSlice({

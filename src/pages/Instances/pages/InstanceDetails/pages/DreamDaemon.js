@@ -245,11 +245,18 @@ const DaemonSettings = ({ daemon, onSubmit }) => {
 const DaemonActions = ({ daemon, instanceId, onAction }) => {
   const [inProgress, setInProgress] = useState(false);
 
+  // Blocks off buttons while the action is being done
+  const doAction = func => {
+    setInProgress(true);
+    func()
+      .finally(() => setInProgress(false));
+  };
+
   /**
    * Starts the server.
    */
   const startServer = () => {
-    Tgs.put("DreamDaemon", {}, { "Instance": instanceId })
+    return Tgs.put("DreamDaemon", {}, { "Instance": instanceId })
       .then(({ data }) => {
         store.dispatch(instanceJobsAdd([data]));
         message.success("Instance " + instanceId + " started.");
@@ -262,7 +269,7 @@ const DaemonActions = ({ daemon, instanceId, onAction }) => {
    * Restarts the server.
    */
   const restartServer = () => {
-    Tgs.patch("DreamDaemon", {}, { "Instance": instanceId })
+    return Tgs.patch("DreamDaemon", {}, { "Instance": instanceId })
       .then(({ data }) => {
         store.dispatch(instanceJobsAdd([data]));
         message.success("Instance " + instanceId + " restarted.");
@@ -275,7 +282,7 @@ const DaemonActions = ({ daemon, instanceId, onAction }) => {
    * Stops the server.
    */
   const stopServer = () => {
-    Tgs.delete("DreamDaemon", { "Instance": instanceId })
+    return Tgs.delete("DreamDaemon", { "Instance": instanceId })
       .then(_ => {
         message.success("Instance " + instanceId + " shut down.");
         onAction();
@@ -288,19 +295,19 @@ const DaemonActions = ({ daemon, instanceId, onAction }) => {
       <Space>
         <Button
           type="primary"
-          disabled={daemon?.status != Defines.Status.Offline}
-          onClick={startServer}>
+          disabled={inProgress || daemon?.status != Defines.Status.Offline}
+          onClick={() => doAction(startServer)}>
           <PlayCircleOutlined /> Start server
         </Button>
         <Button
-          disabled={daemon?.status == Defines.Status.Offline}
-          onClick={restartServer}>
+          disabled={inProgress || daemon?.status == Defines.Status.Offline}
+          onClick={() => doAction(restartServer)}>
           <ReloadOutlined /> Restart server
         </Button>
         <Button
           danger
-          disabled={daemon?.status == Defines.Status.Offline}
-          onClick={stopServer}>
+          disabled={inProgress || daemon?.status == Defines.Status.Offline}
+          onClick={() => doAction(stopServer)}>
           <StopOutlined /> Stop server
         </Button>
         <Button disabled={daemon?.status == Defines.Status.Offline}>
