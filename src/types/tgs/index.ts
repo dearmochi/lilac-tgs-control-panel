@@ -24,6 +24,21 @@ export enum InstanceManagerRights {
   GrantPermissions = 1024,
 }
 
+export interface ServerInformationResponse {
+  version?: string,
+  apiVersion?: string,
+  dmApiVersion?: string,
+  windowsHost?: boolean,
+  updateInProgress?: boolean,
+  swarmServers?: any, // TODO
+  oAuthProviderInfos?: any, // TODO
+  minimumPasswordLength?: number,
+  instanceLimit?: number,
+  userLimit?: number,
+  userGroupLimit?: number,
+  validInstancePaths?: string[],
+}
+
 export interface PermissionSet {
   id: number,
   administrationRights: AdministrationRights | number,

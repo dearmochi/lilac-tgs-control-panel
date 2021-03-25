@@ -9,7 +9,7 @@ const createStore = <T extends object, A extends object>(initialState: T, reduce
     return (
       <dispatchContext.Provider value={dispatch}>
         <stateContext.Provider value={state}>
-            {props.children}
+          {props.children}
         </stateContext.Provider>
       </dispatchContext.Provider>
     );
