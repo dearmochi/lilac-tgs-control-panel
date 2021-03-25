@@ -3,6 +3,7 @@ import { HashRouter, Route, Switch } from 'react-router-dom';
 import Navigation from '../../components/Navigation';
 import { updateServerInfo } from '../../middleware/serverinfo';
 import { getServerInfoDispatch, getServerInfoState, ServerInfoProvider } from '../../store/serverinfo';
+import PageUser from './user';
 
 const AppMainBody = () => {
   const state = getServerInfoState();
@@ -25,7 +26,7 @@ const AppMainBody = () => {
           Home
         </Route>
         <Route path="/user">
-          User
+          <PageUser />
         </Route>
       </Switch>
     </HashRouter>

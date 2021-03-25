@@ -45,19 +45,12 @@ export interface PermissionSet {
   instanceManagerRights: InstanceManagerRights | number
 }
 
-export interface TokenResponse {
-  bearer: string,
-  expiresAt: Date
-}
-
-export interface UserResponse {
-  createdBy: UserResponse,
-  oAuthConnections: any, // TODO 
-  permissionSet: PermissionSet,
-  group: any, // TODO
-  enabled: boolean,
-  createdAt: Date,
-  systemIdentifier: string,
-  name: string,
-  id: number
+export interface User {
+  oAuthConnections?: any, // TODO 
+  permissionSet?: PermissionSet,
+  group?: any, // TODO
+  enabled?: boolean,
+  systemIdentifier?: string,
+  name?: string,
+  id?: number
 }
