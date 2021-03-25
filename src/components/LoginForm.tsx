@@ -7,13 +7,19 @@ const LoginForm = () => {
 	//
 	const [username, setUserName] = React.useState('');
 	const [password, setPassword] = React.useState('');
+
+	const formSubmit = (e: React.FormEvent) => {
+		logIn(dispatch, username, password);
+		e.preventDefault();
+	};
+
 	return (
-		<div>
+		<form onSubmit={formSubmit}>
 			<b>Login</b><br />
 			<input type="text" onChange={e => setUserName(e.target.value)} /><br />
 			<input type="password" onChange={e => setPassword(e.target.value)} /><br />
-			<button onClick={() => logIn(dispatch, username, password)}>Login</button>
-		</div>
+			<input type="submit" />
+		</form>
 	);
 };
 
